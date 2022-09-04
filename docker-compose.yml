@@ -1,0 +1,26 @@
+version: "3"
+services:
+  app:
+    build:
+      context: .
+      dockerfile: ./infra/python/dockerfile
+    ports:
+      - 8000:8000
+    volumes:
+      - ./src:/app
+    depends_on:
+      - db
+    container_name: webapi_app
+
+  db:
+    build:
+      context: ./infra/mysql
+    ports:
+      - 3306:3306
+    volumes:
+      - mysql_data:/var/lib/mysql
+    container_name: webapi_db
+
+volumes:
+  mysql_data:
+
