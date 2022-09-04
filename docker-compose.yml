@@ -7,7 +7,12 @@ services:
     ports:
       - 8000:8000
     volumes:
-      - ./src:/app
+      - ./src/:/app/src
+      - ./tests/:/app/tests
+      - ./pyproject.toml:/app/pyproject.toml
+      - ./pytest.ini:/app/pytest.ini
+      - ./tox.ini:/app/tox.ini
+      - ./mypy.ini:/app/mypy.ini
     depends_on:
       - db
     container_name: webapi_app
