@@ -13,6 +13,8 @@ services:
       - ./pytest.ini:/app/pytest.ini
       - ./tox.ini:/app/tox.ini
       - ./mypy.ini:/app/mypy.ini
+      - ./.coveragerc:/app/.coveragerc
+      - ./README.md:/app/README.md
     depends_on:
       - db
     container_name: webapi_app
