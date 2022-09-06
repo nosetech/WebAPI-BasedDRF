@@ -9,6 +9,8 @@ COPY pyproject.toml /app
 COPY tox.ini /app
 COPY pytest.ini /app
 COPY mypy.ini /app
+COPY .coveragerc /app
+COPY README.md /app
 
 WORKDIR /app/src
 
