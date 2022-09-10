@@ -15,6 +15,10 @@ import os
 from pathlib import Path
 
 import environ
+import structlog
+from django.dispatch import receiver
+from django_structlog.signals import bind_extra_request_metadata
+from structlog.processors import CallsiteParameter
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -58,6 +62,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "django_structlog.middlewares.RequestMiddleware",
 ]
 
 REST_FRAMEWORK = {
@@ -166,23 +171,65 @@ LOGGING = {
             "format": "%(asctime)s %(pathname)s:%(funcName)s(%(lineno)d) "
             "pid=%(process)d tid=%(thread)d [%(levelname)s]: %(message)s"
         },
+        "json_formatter": {
+            "()": structlog.stdlib.ProcessorFormatter,
+            "processor": structlog.processors.JSONRenderer(),
+        },
     },
     "handlers": {
         "console": {
             "class": "logging.StreamHandler",
             "formatter": "verbose",
         },
+        "console-json": {
+            "class": "logging.StreamHandler",
+            "formatter": "json_formatter",
+        },
     },
     "loggers": {
         "": {
-            "handlers": ["console"],
+            "handlers": ["console-json"],
             "level": env("APP_LOG_LEVEL", default="INFO"),
             "propagate": False,
         },
         "django": {
-            "handlers": ["console"],
+            "handlers": ["console-json"],
+            "level": env("DJANGO_LOG_LEVEL", default="INFO"),
+            "propagate": False,
+        },
+        "django_structlog": {
+            "handlers": ["console-json"],
             "level": env("DJANGO_LOG_LEVEL", default="INFO"),
             "propagate": False,
         },
     },
 }
+
+
+@receiver(bind_extra_request_metadata)
+def bind_user_email(request, logger, **kwargs):
+    structlog.contextvars.bind_contextvars(user_email=getattr(request.user, "email", ""))
+
+
+structlog.configure(
+    processors=[
+        structlog.contextvars.merge_contextvars,
+        structlog.stdlib.filter_by_level,
+        structlog.processors.CallsiteParameterAdder(
+            parameters=[
+                CallsiteParameter.FUNC_NAME,
+                CallsiteParameter.LINENO,
+            ]
+        ),
+        structlog.processors.TimeStamper(fmt="%Y-%m-%d %H:%M:%S", utc=False),
+        structlog.stdlib.add_logger_name,
+        structlog.stdlib.add_log_level,
+        structlog.stdlib.PositionalArgumentsFormatter(),
+        structlog.processors.StackInfoRenderer(),
+        structlog.processors.format_exc_info,
+        structlog.processors.UnicodeDecoder(),
+        structlog.stdlib.ProcessorFormatter.wrap_for_formatter,
+    ],
+    logger_factory=structlog.stdlib.LoggerFactory(),
+    cache_logger_on_first_use=True,
+)

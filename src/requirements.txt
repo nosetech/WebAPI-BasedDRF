@@ -1,7 +1,8 @@
 django==4.0
 django-environ==0.9.0
 djangorestframework==3.13.1
-mysqlclient==2.1.1
 djangorestframework-simplejwt==5.2.0
-uwsgi==2.0.20
 django-cors-headers==3.13.0
+django-structlog==3.0.1
+mysqlclient==2.1.1
+uwsgi==2.0.20
