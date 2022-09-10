@@ -1,9 +1,10 @@
 import functools
-import logging
+
+import structlog
 
 
-def get_logger(name: str = "") -> logging.Logger:
-    return logging.getLogger(name)
+def get_logger(name: str = ""):
+    return structlog.get_logger(name)
 
 
 def execute_log(logger):
