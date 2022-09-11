@@ -16,8 +16,6 @@ from pathlib import Path
 
 import environ
 import structlog
-from django.dispatch import receiver
-from django_structlog.signals import bind_extra_request_metadata
 from structlog.processors import CallsiteParameter
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -48,9 +46,12 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "django_boost",
     "rest_framework",
     "rest_framework_simplejwt",
     "corsheaders",
+    "user",
+    "sampleapp",
 ]
 
 MIDDLEWARE = [
@@ -74,6 +75,7 @@ REST_FRAMEWORK = {
 
 SIMPLE_JWT = {
     "AUTH_HEADER_TYPES": ("JWT"),
+    "USER_ID_FIELD": "uuid",
     "ACCESS_TOKEN_LIFETIME": datetime.timedelta(seconds=env.int("JWT_EXPIRATION_SECONDS", default=300)),
     "REFRESH_TOKEN_LIFETIME": datetime.timedelta(days=env.int("JWT_REFRESH_EXPIRATION_DAYS", default=1)),
     "ROTATE_REFRESH_TOKENS": True,
@@ -162,6 +164,9 @@ STATIC_URL = "static/"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
+# Default user model
+AUTH_USER_MODEL = "user.User"
+
 # Log Config
 LOGGING = {
     "version": 1,
@@ -204,11 +209,6 @@ LOGGING = {
         },
     },
 }
-
-
-@receiver(bind_extra_request_metadata)
-def bind_user_email(request, logger, **kwargs):
-    structlog.contextvars.bind_contextvars(user_email=getattr(request.user, "email", ""))
 
 
 structlog.configure(
