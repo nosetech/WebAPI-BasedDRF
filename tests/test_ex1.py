@@ -1,5 +1,6 @@
 import pytest
-from django.contrib.auth.models import User
+
+from user.models import User
 
 
 def test_one_plus_one():
@@ -9,5 +10,5 @@ def test_one_plus_one():
 
 @pytest.mark.django_db
 def test_my_user():
-    me = User.objects.get(username="system")
+    me = User.objects.get(email="admin@example.com")
     assert me.is_superuser

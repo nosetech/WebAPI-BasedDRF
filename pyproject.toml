@@ -7,8 +7,18 @@ build-backend = "setuptools.build_meta"
 
 [tool.black]
 line-length = 120
+exclude = '''
+(
+    migrations
+    | .mypy_cache
+    | .pytest_cache
+    | .tox
+    | venv
+)
+'''
 
 [tool.isort]
 include_trailing_comma = true
 line_length = 120
 multi_line_output = 3
+skip_glob = "*/migrations/*.py"
