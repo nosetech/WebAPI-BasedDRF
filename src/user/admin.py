@@ -2,6 +2,7 @@ from django import forms
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.forms import ReadOnlyPasswordHashField
+from django_boost.admin import LogicalDeletionModelAdmin
 
 from .models import User
 
@@ -40,7 +41,8 @@ class UserChangeForm(forms.ModelForm):
         return self.initial["password"]
 
 
-class UserAdmin(BaseUserAdmin):
+@admin.register(User)
+class UserAdmin(BaseUserAdmin, LogicalDeletionModelAdmin):
     form = UserChangeForm
     add_form = UserCreationForm
 
@@ -58,6 +60,3 @@ class UserAdmin(BaseUserAdmin):
     search_fields = ("email",)
     ordering = ("email",)
     filter_horizontal = ()
-
-
-admin.site.register(User, UserAdmin)
