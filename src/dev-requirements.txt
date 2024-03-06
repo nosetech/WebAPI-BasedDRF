@@ -1,0 +1,8 @@
+tox
+pytest-django
+pytest-cov
+black
+flake8
+mypy
+isort
+jedi-language-server

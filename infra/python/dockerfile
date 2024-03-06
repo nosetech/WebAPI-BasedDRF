@@ -1,0 +1,23 @@
+FROM python:3.9
+
+RUN mkdir /app
+RUN mkdir /app/src
+RUN mkdir /app/tests
+COPY src /app/src
+COPY tests /app/tests
+COPY pyproject.toml /app
+COPY tox.ini /app
+COPY pytest.ini /app
+COPY mypy.ini /app
+COPY .coveragerc /app
+COPY README.md /app
+
+WORKDIR /app/src
+
+RUN pip install --upgrade pip
+RUN pip install -r requirements.txt
+RUN pip install -r dev-requirements.txt
+
+EXPOSE 8000
+
+CMD ["uwsgi","--ini","uwsgi.ini"]

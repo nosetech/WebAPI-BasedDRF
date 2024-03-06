@@ -1,0 +1,8 @@
+[run]
+branch = True
+omit =
+  */__init__.py
+  */migrations/*.py
+source_pkgs =
+  common
+  user
